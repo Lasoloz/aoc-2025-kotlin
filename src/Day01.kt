@@ -1,19 +1,11 @@
+import util.solution
 import java.io.File
 
 fun main() {
-    solve("input/day01_example")
-    solve("input/day01")
-}
-
-private fun solve(input: String) {
-    println("Solving for $input...")
-    val rotations = readInput(input)
-
-    val result1 = part1(rotations)
-    println("Part 1: $result1")
-
-    val result2 = part2(rotations)
-    println("Part 2: $result2")
+    solution(::readInputFile, ::part1, ::part2) {
+        solve("input/day01_example")
+        solve("input/day01")
+    }
 }
 
 private fun part1(rotations: List<Rotation>): Int {
@@ -35,9 +27,9 @@ private fun part2(rotations: List<Rotation>): Int {
         .sumOf { it.zeroClicks }
 }
 
-private fun readInput(input: String): List<Rotation> {
+private fun readInputFile(filename: String): List<Rotation> {
     return mutableListOf<Rotation>().apply {
-        File(input).forEachLine { line ->
+        File(filename).forEachLine { line ->
             if (line.isBlank()) {
                 return@forEachLine
             }

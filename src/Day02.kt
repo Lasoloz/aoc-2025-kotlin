@@ -1,19 +1,11 @@
+import util.solution
 import java.io.File
 
 fun main() {
-    solve("input/day02_example")
-    solve("input/day02")
-}
-
-private fun solve(input: String) {
-    println("Solving for $input...")
-    val rotations = readInput(input)
-
-    val result1 = part1(rotations)
-    println("Part 1: $result1")
-
-    val result2 = part2(rotations)
-    println("Part 2: $result2")
+    solution(::readInputFile, ::part1, ::part2) {
+        solve("input/day02_example")
+        solve("input/day02")
+    }
 }
 
 private fun part1(input: List<LongRange>): Long {
@@ -71,9 +63,9 @@ private fun String.isRepeatedFrom(part: CharSequence, times: Int? = null): Boole
     return true
 }
 
-private fun readInput(input: String): List<LongRange> {
+private fun readInputFile(filename: String): List<LongRange> {
     return mutableListOf<LongRange>().apply {
-        File(input).forEachLine { line ->
+        File(filename).forEachLine { line ->
             line.splitToSequence(',')
                 .filter { it.isNotBlank() }
                 .forEach { range ->
