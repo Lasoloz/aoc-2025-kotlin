@@ -13,7 +13,16 @@ private val deltas = listOf(-1 to -1, -1 to 0, -1 to 1, 0 to 1, 1 to 1, 1 to 0, 
 private fun part1(storage: PaperStorage): Int = storage.buildNewLayout().second
 
 private fun part2(storage: PaperStorage): Int {
-    return 0
+    var totalChanges = 0
+    var isChanging = true
+    var currentStorage = storage
+    while (isChanging) {
+        val (nextStorage, changes) = currentStorage.buildNewLayout()
+        isChanging = changes > 0
+        currentStorage = nextStorage
+        totalChanges += changes
+    }
+    return totalChanges
 }
 
 private fun PaperStorage.buildNewLayout(): Pair<PaperStorage, Int> {
