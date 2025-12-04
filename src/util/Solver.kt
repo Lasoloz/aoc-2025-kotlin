@@ -1,21 +1,28 @@
 package util
 
+import kotlin.time.Duration
+import kotlin.time.DurationUnit
+import kotlin.time.measureTimedValue
+
 interface Solver<I, O : Number> {
     fun solve(filename: String) {
         println("Solving for $filename...")
         val rotations = readInput(filename)
 
-        val result1 = part1(rotations)
-        println("Part 1: $result1")
+        val (result1, time1) = measureTimedValue { part1(rotations) }
+        println("Part 1 [${time1.formattedForSolver()}]: $result1")
 
-        val result2 = part2(rotations)
-        println("Part 2: $result2")
+        val (result2, time2) = measureTimedValue { part2(rotations) }
+        println("Part 2 [${time2.formattedForSolver()}]: $result2")
     }
 
     fun readInput(filename: String): I
     fun part1(input: I): O
     fun part2(input: I): O
 }
+
+private fun Duration.formattedForSolver() =
+    toString(unit = DurationUnit.MILLISECONDS, decimals = 2).padStart(10, padChar = ' ')
 
 fun <I, O : Number> solution(
     readInput: (String) -> I,
