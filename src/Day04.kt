@@ -1,14 +1,14 @@
 import util.solution
 import java.io.File
 
+private val deltas = listOf(-1 to -1, -1 to 0, -1 to 1, 0 to 1, 1 to 1, 1 to 0, 1 to -1, 0 to -1)
+
 fun main() {
     solution(::readInputFile, ::part1, ::part2) {
         solve("input/day04_example")
         solve("input/day04")
     }
 }
-
-private val deltas = listOf(-1 to -1, -1 to 0, -1 to 1, 0 to 1, 1 to 1, 1 to 0, 1 to -1, 0 to -1)
 
 private fun part1(storage: PaperStorage): Int = storage.buildNewLayout().second
 
@@ -91,7 +91,7 @@ private fun readInputFile(filename: String): PaperStorage {
     return PaperStorage(layout, width)
 }
 
-data class PaperStorage(val layout: List<List<UnitState>>, val width: Int) {
+private data class PaperStorage(val layout: List<List<UnitState>>, val width: Int) {
     val height = layout.size
 
     enum class UnitState {
