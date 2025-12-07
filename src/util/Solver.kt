@@ -8,13 +8,13 @@ interface Solver<I, O : Number> {
     fun solve(filename: String) {
         print("Solving for ${("$filename...").padEnd(length = 30)}")
 
-        val (rotations, inputTime) = measureTimedValue { readInput(filename) }
+        val (input, inputTime) = measureTimedValue { readInput(filename) }
         println(" Input read in ${inputTime.toString(DurationUnit.MILLISECONDS, decimals = 2)}.")
 
-        val (result1, time1) = measureTimedValue { part1(rotations) }
+        val (result1, time1) = measureTimedValue { part1(input) }
         println("Part 1 [${time1.formattedForSolver()}]: $result1")
 
-        val (result2, time2) = measureTimedValue { part2(rotations) }
+        val (result2, time2) = measureTimedValue { part2(input) }
         println("Part 2 [${time2.formattedForSolver()}]: $result2")
     }
 
