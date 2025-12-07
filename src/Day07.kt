@@ -8,26 +8,38 @@ fun main() {
     }
 }
 
-private fun part1(splitters: TachyonSplitters): Int {
-    return splitters.performBeamSplitting().splits
+private fun part1(splitters: TachyonSplitters): Long {
+    return splitters.performBeamSplitting().splits.toLong()
 }
 
-private fun part2(splitters: TachyonSplitters): Int {
-    return 0
+private fun part2(splitters: TachyonSplitters): Long {
+    return splitters.runBeamTimelines().timelineBeamCount.values.sum()
 }
 
 private fun TachyonSplitters.performBeamSplitting(): SplitState =
     layers.fold(SplitState.start(start)) { acc, layer ->
         SplitState(
-            beams = acc.beams.flatMap { beam ->
+            beams = acc.beams.flatMapTo(mutableSetOf()) { beam ->
                 when {
-                    beam in layer -> listOf(beam - 1, beam + 1)
-                    else -> listOf(beam)
+                    beam in layer -> setOf(beam - 1, beam + 1)
+                    else -> setOf(beam)
+                }
+            },
+            splits = acc.splits + acc.beams.count { it in layer },
+        )
+    }
+
+private fun TachyonSplitters.runBeamTimelines(): TimelineState =
+    layers.fold(TimelineState.start(start)) { acc, layer ->
+        TimelineState(
+            timelineBeamCount = acc.timelineBeamCount.flatMap { (beam, count) ->
+                when {
+                    (beam in layer) -> listOf((beam - 1) to count, (beam + 1) to count)
+                    else -> listOf(beam to count)
                 }
             }
-                .distinct()
-                .toList(),
-            splits = acc.splits + acc.beams.count { it in layer }
+                .groupBy { it.first }
+                .mapValues { beamTimelines -> beamTimelines.value.sumOf { it.second } }
         )
     }
 
@@ -51,8 +63,16 @@ private fun Iterator<String>.readStart() = next().indexOf('S')
 
 private data class TachyonSplitters(val start: Int, val layers: List<List<Int>>)
 
-private data class SplitState(val beams: List<Int>, val splits: Int) {
+private data class SplitState(val beams: Set<Int>, val splits: Int = 0) {
     companion object {
-        fun start(beam: Int) = SplitState(beams = listOf(beam), splits = 0)
+        fun start(beam: Int) = SplitState(beams = setOf(beam))
+    }
+}
+
+private typealias TimelineBeamCount = Map<Int, Long>
+
+private data class TimelineState(val timelineBeamCount: TimelineBeamCount) {
+    companion object {
+        fun start(beam: Int) = TimelineState(timelineBeamCount = mapOf(beam to 1L))
     }
 }
