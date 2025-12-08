@@ -8,23 +8,27 @@ fun main() {
     }
 }
 
-private fun part1(coordinates: List<Coordinate>): Int {
+private fun part1(coordinates: List<Coordinate>): Long {
     val coordinatesWithId = coordinates.mapIndexed { index, coordinate -> CoordinateWithId(index, coordinate) }
     val take = if (coordinates.size <= 20) 10 else 1000 // TODO: Move to solver abstraction
     val shortestPairs = coordinatesWithId.findFirstNShortestPairs(take)
-//        .also { println("Shortest pairs: $it") }
-    return calculateCircuitsOf(coordinatesWithId, shortestPairs)
+    return calculateCircuitsOf(coordinatesWithId, shortestPairs).first.toLong()
 }
 
-private fun part2(coordinates: List<Coordinate>): Int {
-    return 0
+private fun part2(coordinates: List<Coordinate>): Long {
+    val coordinatesWithId = coordinates.mapIndexed { index, coordinate -> CoordinateWithId(index, coordinate) }
+    val shortestPairs = coordinatesWithId.findFirstNShortestPairs(Int.MAX_VALUE)
+    val lastPair = calculateCircuitsOf(coordinatesWithId, shortestPairs).second
+    return coordinatesWithId[lastPair.id1].x.toLong() * coordinatesWithId[lastPair.id2].x.toLong()
+    // This is a good reminder that I always shall start with Long responses, no matter what, and optimize down
+    // if needed
 }
 
 private fun List<CoordinateWithId>.findFirstNShortestPairs(take: Int): Collection<PairDistanceSq> {
     val shortest = sortedSetOf<PairDistanceSq>()
 
     for ((i, first) in this.withIndex()) {
-        for (j in (i+1) until this.size) {
+        for (j in (i + 1) until this.size) {
             val second = this[j]
             val distance = first distanceSq second
             if (shortest.size < take) {
@@ -48,41 +52,45 @@ private fun List<CoordinateWithId>.findFirstNShortestPairs(take: Int): Collectio
 private fun calculateCircuitsOf(
     coordinatesWithId: List<CoordinateWithId>,
     shortestPairs: Collection<PairDistanceSq>
-): Int {
+): Pair<Int, PairDistanceSq> {
     val unwired = coordinatesWithId.asSequence().map { it.id }.toMutableSet()
     val wires = mutableListOf<MutableSet<Int>>()
 
-    for (pairs in shortestPairs) {
+    var lastConnection = shortestPairs.first()
+
+    for (pair in shortestPairs) {
+        if (unwired.isEmpty()) {
+            break
+        }
+        lastConnection = pair
         var unwiredFirst = false
         var unwiredSecond = false
-        if (pairs.id1 in unwired) {
+        if (pair.id1 in unwired) {
             unwiredFirst = true
-            unwired.remove(pairs.id1)
+            unwired.remove(pair.id1)
         }
-        if (pairs.id2 in unwired) {
+        if (pair.id2 in unwired) {
             unwiredSecond = true
-            unwired.remove(pairs.id2)
+            unwired.remove(pair.id2)
         }
         when {
-            unwiredFirst && unwiredSecond -> wires.add(mutableSetOf(pairs.id1, pairs.id2))
-            unwiredFirst && !unwiredSecond -> wires.find { pairs.id2 in it }!!.add(pairs.id1)
-            !unwiredFirst && unwiredSecond -> wires.find { pairs.id1 in it }!!.add(pairs.id2)
+            unwiredFirst && unwiredSecond -> wires.add(mutableSetOf(pair.id1, pair.id2))
+            unwiredFirst && !unwiredSecond -> wires.find { pair.id2 in it }!!.add(pair.id1)
+            !unwiredFirst && unwiredSecond -> wires.find { pair.id1 in it }!!.add(pair.id2)
             else -> {
                 // merge wire sets
-                val set1 = wires.find { pairs.id1 in it }!!
-                val set2 = wires.find { pairs.id2 in it }!!
+                val set1 = wires.find { pair.id1 in it }!!
+                val set2 = wires.find { pair.id2 in it }!!
                 if (set1 === set2) {
                     continue
                 }
-                wires.removeIf { pairs.id2 in it }
+                wires.removeIf { pair.id2 in it }
                 set1.addAll(set2)
             }
         }
     }
 
-//    println("Final state: $wires")
-
-    return wires.sortedByDescending { it.size }.take(3).fold(1) { acc, set -> acc * set.size }
+    return wires.sortedByDescending { it.size }.take(3).fold(1) { acc, set -> acc * set.size } to lastConnection
 }
 
 private infix fun CoordinateWithId.distanceSq(other: CoordinateWithId): Long =
