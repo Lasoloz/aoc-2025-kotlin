@@ -1,4 +1,5 @@
 import util.Coordinate2
+import util.drawAsPolygonToSvg
 import util.solution
 import java.io.File
 import kotlin.math.abs
@@ -34,4 +35,8 @@ private fun readInputFile(filename: String): List<Coordinate2<Long>> {
             }
             .toList()
     }
+//        .also { coordinates ->
+//            val svg = coordinates.drawAsPolygonToSvg()
+//            File("$filename.svg").writeText(svg)
+//        }
 }
