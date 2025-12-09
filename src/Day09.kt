@@ -1,6 +1,4 @@
 import util.Coordinate2
-import util.asSvgPolygon
-import util.asSvgRectangle
 import util.solution
 import java.io.File
 import kotlin.math.abs
@@ -21,7 +19,6 @@ private fun part1(tileCoordinates: List<Coordinate2<Long>>): Long {
         .max()
 }
 
-// Low answer: 1424092176
 private fun part2(tileCoordinates: List<Coordinate2<Long>>): Long {
     return tileCoordinates.asSequence()
         .withIndex()
@@ -29,25 +26,6 @@ private fun part2(tileCoordinates: List<Coordinate2<Long>>): Long {
         .filter { (first, second) -> tileCoordinates.isPossibleRectangle(first, second) }
         .map { (first, second) -> RectangleWithSize(first, second) }
         .maxBy { it.size }
-        .also {
-            println("Biggest rectangle: $it, ${it.size}")
-            println("Max size: ${tileCoordinates.maxBy(Coordinate2<Long>::x)}, ${tileCoordinates.maxBy(Coordinate2<Long>::y)}")
-            val (width, _) = tileCoordinates.maxBy(Coordinate2<Long>::x)
-            val (_, height) = tileCoordinates.maxBy(Coordinate2<Long>::y)
-            //language=SVG
-            val svg = """
-                <svg height="$height" width="$width" xmlns="http://www.w3.org/2000/svg">
-                    ${tileCoordinates.asSvgPolygon()}
-                    ${(it.start to it.end).asSvgRectangle()}
-                    ${
-                tileCoordinates.map { coord ->
-                    "<rect x='${coord.x}' y='${coord.y}' width='1' height='1' style='stroke:blue;stroke-width:1'/>\n"
-                }
-            }
-                </svg>
-            """.trimIndent()
-            File("misc/day09_withrect_v3.svg").writeText(svg)
-        }
         .size
 }
 
@@ -112,10 +90,6 @@ private fun readInputFile(filename: String): List<Coordinate2<Long>> {
             }
             .toList()
     }
-//        .also { coordinates ->
-//            val svg = coordinates.drawAsPolygonToSvg()
-//            File("$filename.svg").writeText(svg)
-//        }
 }
 
 private data class Rectangle(val start: Coordinate2<Long>, val end: Coordinate2<Long>) {
