@@ -1,3 +1,4 @@
+import util.Coordinate3
 import util.solution
 import java.io.File
 
@@ -8,14 +9,14 @@ fun main() {
     }
 }
 
-private fun part1(coordinates: List<Coordinate>): Long {
+private fun part1(coordinates: List<Coordinate3<Int>>): Long {
     val coordinatesWithId = coordinates.mapIndexed { index, coordinate -> CoordinateWithId(index, coordinate) }
     val take = if (coordinates.size <= 20) 10 else 1000 // TODO: Move to solver abstraction
     val shortestPairs = coordinatesWithId.findFirstNShortestPairs(take)
     return calculateCircuitsOf(coordinatesWithId, shortestPairs).first.toLong()
 }
 
-private fun part2(coordinates: List<Coordinate>): Long {
+private fun part2(coordinates: List<Coordinate3<Int>>): Long {
     val coordinatesWithId = coordinates.mapIndexed { index, coordinate -> CoordinateWithId(index, coordinate) }
     val shortestPairs = coordinatesWithId.findFirstNShortestPairs(Int.MAX_VALUE)
     val lastPair = calculateCircuitsOf(coordinatesWithId, shortestPairs).second
@@ -98,7 +99,7 @@ private infix fun CoordinateWithId.distanceSq(other: CoordinateWithId): Long =
 
 private fun Int.sq(): Long = this.toLong() * this.toLong()
 
-private fun readInputFile(filename: String): List<Coordinate> =
+private fun readInputFile(filename: String): List<Coordinate3<Int>> =
     File(filename).useLines { lines ->
         lines.mapNotNull { line ->
             when {
@@ -107,13 +108,12 @@ private fun readInputFile(filename: String): List<Coordinate> =
             }
         }
             .filter { it.size >= 3 }
-            .map { (x, y, z) -> Coordinate(x, y, z) }
+            .map { (x, y, z) -> Coordinate3(x, y, z) }
             .toList()
     }
 
-private data class Coordinate(val x: Int, val y: Int, val z: Int)
 private data class CoordinateWithId(val id: Int, val x: Int, val y: Int, val z: Int) {
-    constructor(id: Int, coordinate: Coordinate) : this(id, coordinate.x, coordinate.y, coordinate.z)
+    constructor(id: Int, coordinate: Coordinate3<Int>) : this(id, coordinate.x, coordinate.y, coordinate.z)
 }
 
 private data class PairDistanceSq(val id1: Int, val id2: Int, val distanceSq: Long) : Comparable<PairDistanceSq> {
