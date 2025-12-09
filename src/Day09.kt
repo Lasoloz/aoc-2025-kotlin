@@ -46,13 +46,21 @@ private fun List<Coordinate2<Long>>.isPossibleRectangle(
 
 private fun Rectangle.crossedByLine(lineStart: Coordinate2<Long>, lineEnd: Coordinate2<Long>): Boolean =
     when {
+        // Explanation (same idea vertically and horizontally):
+        // 1. If the segment is exactly on the rectangle's edge, or outside the rectangle's strip, it's not going
+        //    to fail, hence the `betweenExclusive`.
+        // 2. If the segment is between the rectangle's "strip", we are checking 3 cases that trigger a crossing:
+        //    a)   +------+   b) +------+     c) +------+   +------+   +------+
+        //         x-|-x  |      |    x-|-x      x----x |   | x----x   |  x-x |
+        //         +------+      +------+        +------+   +------+   +------+
+
         lineStart.x == lineEnd.x -> lineStart.x in betweenExclusive(start.x, end.x)
                 && (
                 start.y in betweenExclusive(lineStart.y, lineEnd.y)
                         || end.y in betweenExclusive(lineStart.y, lineEnd.y)
                         || (
-                        lineStart.y in between(start.y, end.y)
-                                && lineEnd.y in between(start.y, end.y)
+                        lineStart.y in betweenInclusive(start.y, end.y)
+                                && lineEnd.y in betweenInclusive(start.y, end.y)
                         )
                 )
 
@@ -61,8 +69,8 @@ private fun Rectangle.crossedByLine(lineStart: Coordinate2<Long>, lineEnd: Coord
                 start.x in betweenExclusive(lineStart.x, lineEnd.x)
                         || end.x in betweenExclusive(lineStart.x, lineEnd.x)
                         || (
-                        lineStart.x in between(start.x, end.x)
-                                && lineEnd.x in between(start.x, end.x)
+                        lineStart.x in betweenInclusive(start.x, end.x)
+                                && lineEnd.x in betweenInclusive(start.x, end.x)
                         )
                 )
 
@@ -72,7 +80,7 @@ private fun Rectangle.crossedByLine(lineStart: Coordinate2<Long>, lineEnd: Coord
         }
     }
 
-private fun between(first: Long, second: Long) =
+private fun betweenInclusive(first: Long, second: Long) =
     if (first < second) first..second
     else second..first
 
